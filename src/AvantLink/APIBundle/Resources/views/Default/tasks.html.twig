@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>AvantLink Tasks</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+	<link rel="stylesheet" href="/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/css/default.css">
+	
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<h3>Tasks</h3>
+		</div>
+		<div class="row">
+			<div class="col-md-4">
+				<table class="table" id="tasksTable">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Title</th>
+							<th>Created</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for task in tasks %}
+							<tr>
+								<td>{{ task.id }}</td>
+								<td>{{ task.title }}</td>
+								<td>{{ task.created|date("m/d/Y") }}</td>
+								<td><span class="remove-task-btn glyphicon glyphicon glyphicon-remove pull-right" aria-hidden="true" title="Remove this task" data-task-id="{{ task.id }}"></span></td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+			<div class="col-md-8">
+				<h4>Add a task</h4>
+				<form class="form-inline" id="addTaskForm">
+					<div class="form-group">
+						<label for="title">Title</label>
+						<input type="text" class="form-control" id="title" placeholder="" maxlength="100">
+					</div>
+					<button type="submit" class="btn btn-default">Add</button>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<!-- Fixes no console errors in IE -->
+	<script type="text/javascript">
+		if(!window.console || typeof console == 'undefined') {
+			var console = {
+				log : function(){},
+				warn : function(){},
+				error : function(){},
+				time : function(){},
+				timeEnd : function(){}
+			}
+		}
+	</script>
+
+	<script   src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+
+	<script>
+		
+		function updateTasksList() {
+			$.ajax({
+				method: "GET",
+				url: "http://" + location.hostname + "/api/tasks/all",
+				dataType: "json"
+			})
+			.done(function(tasks) {
+				console.log(tasks);
+				
+				var table = $('#tasksTable');
+				var tbody = table.find('tbody');
+				tbody.empty();
+				
+				$(tasks).each(function(index, task) {
+					// Format the date
+					var created = new Date(task.created);
+					created = ("0"+(created.getMonth()+1)).slice(-2) + "/" + ("0" + created.getDate()).slice(-2) + "/" + created.getFullYear();
+					
+					var tr = $('<tr></tr>');
+					tr.append('<td>' + task.id + '</td>');
+					tr.append('<td>' + task.title + '</td>');
+					tr.append('<td>' + created + '</td>');
+					tr.append('<td><span class="remove-task-btn glyphicon glyphicon glyphicon-remove pull-right" aria-hidden="true" title="Remove this task" data-task-id="' + task.id + '"></span></td>');
+					tbody.append(tr);
+				});
+				
+				setRemoveHandlers();
+			})
+			.fail(function(jqXHR, response) {
+				var error = $.parseJSON(jqXHR.responseText);
+				alert(error.error_msg);
+			});
+		}
+		
+		function setRemoveHandlers() {
+			$('.remove-task-btn').click(function() {
+				var tr = $(this).closest('tr');
+				var taskId = $(this).attr('data-task-id');
+
+				$.ajax({
+					method: "GET",
+					url: "http://" + location.hostname + "/api/tasks/remove/" + taskId,
+					dataType: "json"
+				})
+				.done(function(response) {
+					console.log(response);
+					tr.remove();
+				})
+				.fail(function(jqXHR, response) {
+					var error = $.parseJSON(jqXHR.responseText);
+					alert(error.error_msg);
+				});
+			});
+		}
+
+		$(document).ready(function() {
+			
+			// Adding a task
+			$('#addTaskForm').submit(function(event) {
+				event.preventDefault();
+
+				$.ajax({
+					method: "POST",
+					url: "http://" + location.hostname + "/api/tasks/add",
+					dataType: "json",
+					data: {
+						title: $('#title').val()
+					}
+				})
+				.done(function(response) {
+					console.log(response);
+					updateTasksList();
+				})
+				.fail(function(jqXHR, response) {
+					var error = $.parseJSON(jqXHR.responseText);
+					alert(error.error_msg);
+				});
+			});
+			
+			// Removing a task
+			setRemoveHandlers();
+		});
+	</script>
+
+</body>

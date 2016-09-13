@@ -1,0 +1,13 @@
+avantlink_api:
+    resource: "@AvantLinkAPIBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
+api_tasks:
+    type: rest
+    host: local.avantlink2.com
+    resource: "AvantLink\\APIBundle\\Controller\\APIController"
+
+NelmioApiDocBundle:
+    resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
+    prefix:   /api/doc

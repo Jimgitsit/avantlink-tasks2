@@ -1,0 +1,4 @@
+services:
+#    avant_link_api.example:
+#        class: AvantLink\APIBundle\Example
+#        arguments: ["@service_id", "plain_value", %parameter%]
