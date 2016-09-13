@@ -10,11 +10,10 @@ use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Get;
 
-class APIController extends FOSRestController 
-{
+class APIController extends FOSRestController {
 	private $format = 'json';
 	private $headers = array(
-		'content-type' =>  'application/json'
+		'content-type' => 'application/json'
 	);
 	
 	/**
@@ -25,10 +24,11 @@ class APIController extends FOSRestController
 	 *     description="Returns a task.",
 	 *     requirements={{"name"="id", "dataType"="integer","requirement"="\d+","description"="The id of the task to retrieve."}}
 	 * )
-	 * 
+	 *
 	 * @Get("/api/tasks/{id}", requirements={"id" = "\d+"})
-	 * 
+	 *
 	 * @param $id
+	 *
 	 * @return Response
 	 */
 	public function getTaskAction($id) {
@@ -51,10 +51,11 @@ class APIController extends FOSRestController
 	 *     description="Adds a task.",
 	 *     requirements={{"name"="title", "dataType"="string","requirement"="100 chars max","description"="The title of the task."}}
 	 * )
-	 * 
+	 *
 	 * @Post("/api/tasks/add")
-	 * 
+	 *
 	 * @param Request $request the request object
+	 *
 	 * @return Response
 	 */
 	public function addTaskAction(Request $request) {
@@ -84,10 +85,11 @@ class APIController extends FOSRestController
 	 *     description="Removes a task.",
 	 *     requirements={{"name"="id", "dataType"="integer","requirement"="\d+","description"="The id of the task to remove."}}
 	 * )
-	 * 
+	 *
 	 * @Get("/api/tasks/remove/{id}")
-	 * 
+	 *
 	 * @param $id
+	 *
 	 * @return Response
 	 */
 	public function removeTaskAction($id) {
@@ -115,15 +117,16 @@ class APIController extends FOSRestController
 	 *     resource=true,
 	 *     description="Returns all tasks."
 	 * )
-	 * 
+	 *
 	 * @Get("/api/tasks/all")
-	 * 
+	 *
 	 * @return Response
 	 */
 	public function getAllTasksAction() {
 		$tasks = $this->getDoctrine()->getRepository('AvantLinkAPIBundle:Task')->findAll();
 		
 		$serializer = $this->get('jms_serializer');
+		
 		return new Response($serializer->serialize($tasks, $this->format), 200, $this->headers);
 	}
 }
